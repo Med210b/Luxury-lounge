@@ -1,0 +1,6 @@
+{
+  "name": "Luxury Lounge",
+  "description": "An ultra-luxury bespoke concierge and lifestyle management firm offering private aviation, marine leisure, exclusive dining, and global memberships.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
