@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, ChevronDown, Sparkles, Plane, Anchor, Shield, Globe2, Compass } from 'lucide-react';
+import { Search, ChevronDown, Sparkles, Plane, Anchor, Shield, Globe2, Compass, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
@@ -64,6 +64,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigateHome, onNavigate }) =>
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [expandedMobileMenu, setExpandedMobileMenu] = useState<string | null>(null);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -93,6 +94,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigateHome, onNavigate }) =>
         window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
       }
     }
+  };
+
+  const toggleMobileDropdown = (menuName: string) => {
+    setExpandedMobileMenu(expandedMobileMenu === menuName ? null : menuName);
   };
 
   useEffect(() => {
@@ -133,6 +138,18 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigateHome, onNavigate }) =>
       setTimeout(() => searchInputRef.current?.focus(), 80);
     }
   }, [searchOpen]);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
 
   // Search filter candidates
   const SEARCH_ITEMS = [
@@ -180,32 +197,35 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigateHome, onNavigate }) =>
       {/* Main Sticky/Fixed Navigation Bar */}
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? 'bg-[#050A15]/85 backdrop-blur-xl border-b border-[rgba(192,192,192,0.14)] py-2.5 shadow-[0_10px_35px_rgba(0,0,0,0.6)]'
+          isScrolled || mobileMenuOpen
+            ? 'bg-[#050A15]/85 backdrop-blur-xl border-b border-[rgba(192,192,192,0.14)] py-3 lg:py-2.5 shadow-[0_10px_35px_rgba(0,0,0,0.6)]'
             : 'bg-transparent py-4 border-b border-[rgba(192,192,192,0.06)]'
         }`}
       >
         {/* Flexbox Layout: Logo far left, Nav links center, Actions far right */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 flex items-center justify-between">
+          
           {/* 1. FAR LEFT: Strictly Retained Brand Logo */}
-          <a
-            href="#home"
-            onClick={(e) => {
-              e.preventDefault();
-              handleLinkClick('#home');
-            }}
-            className="flex items-center shrink-0 group cursor-pointer"
-            aria-label="Luxury Lounge Home"
-          >
-            <img
-              src="https://res.cloudinary.com/swcgor0l/image/upload/v1790089140/dad1d938-dba2-4299-8e56-830655f5f41ejjjjjjjjjjjj_pv6vmo.png"
-              alt="Luxury Lounge Logo"
-              className="h-[38px] sm:h-[44px] w-auto object-contain transition-transform duration-300 group-hover:scale-[1.02]"
-              style={{ maxHeight: '44px' }}
-            />
-          </a>
+          <div className="flex items-center">
+            <a
+              href="#home"
+              onClick={(e) => {
+                e.preventDefault();
+                handleLinkClick('#home');
+              }}
+              className="flex items-center shrink-0 group cursor-pointer z-50 relative"
+              aria-label="Luxury Lounge Home"
+            >
+              <img
+                src="https://res.cloudinary.com/swcgor0l/image/upload/v1790089140/dad1d938-dba2-4299-8e56-830655f5f41ejjjjjjjjjjjj_pv6vmo.png"
+                alt="Luxury Lounge Logo"
+                className="h-[36px] sm:h-[40px] lg:h-[44px] w-auto object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                style={{ maxHeight: '44px' }}
+              />
+            </a>
+          </div>
 
-          {/* 2. CENTER: Clean Nav Links with Generous Spacing & Hover Transition */}
+          {/* 2. CENTER: Clean Nav Links (Desktop Only) */}
           <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
             {NAV_ITEMS.map((item) => (
               <div
@@ -224,13 +244,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigateHome, onNavigate }) =>
                 >
                   <span>{item.name}</span>
 
-                  {/* Dropdown Arrow (Small SVG rotated on hover) */}
+                  {/* Dropdown Arrow */}
                   {item.hasDropdown && (
                     <ChevronDown className="w-3 h-3 text-[#7E889B] group-hover:text-white transition-all duration-300 group-hover:rotate-180 shrink-0" />
                   )}
                 </a>
 
-                {/* Dropdown Sub-menu Panel */}
+                {/* Desktop Dropdown Sub-menu Panel */}
                 {item.hasDropdown && item.subItems && (
                   <div
                     className={`absolute top-full left-1/2 -translate-x-1/2 pt-2 w-72 transition-all duration-200 z-50 ${
@@ -279,147 +299,160 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigateHome, onNavigate }) =>
             ))}
           </nav>
 
-          {/* 3. FAR RIGHT: Language Switcher + Minimal Search Icon + Pill-Shaped WhatsApp CTA */}
-          <div className="flex items-center gap-2.5 sm:gap-3.5 shrink-0">
-            {/* Elegant Multilingual Language Switcher */}
-            <LanguageSwitcher />
+          {/* 3. FAR RIGHT: Utilities & Mobile Toggle */}
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            {/* Language Switcher (Hidden on Mobile, moved to drawer) */}
+            <div className="hidden sm:block">
+              <LanguageSwitcher />
+            </div>
 
-            {/* Minimal Magnifying Glass Search Icon */}
+            {/* Search Button */}
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
               aria-label="Open global search"
-              className="w-9 h-9 rounded-full flex items-center justify-center text-[#A0A7B8] hover:text-white border border-transparent hover:border-white/20 hover:bg-white/[0.06] transition-all duration-300 cursor-pointer relative"
-              title="Search protocols (Cmd+K)"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-[#A0A7B8] hover:text-white border border-transparent hover:border-white/20 hover:bg-white/[0.06] transition-all duration-300 cursor-pointer relative z-50"
             >
               <Search className="w-4 h-4 transition-transform duration-300 hover:scale-110" />
             </button>
 
-            {/* Pill-Shaped WhatsApp Button */}
+            {/* Pill-Shaped WhatsApp Button (Desktop Only) */}
             <a
               href="https://wa.me/971585783038?text=Hello%20Luxury%20Lounge%20Private%20Desk%2C%20I%20would%20like%20to%20inquire%20about%20bespoke%20services."
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative inline-flex items-center gap-2.5 px-4 sm:px-5 py-2 rounded-full border border-white/25 hover:border-white bg-[#0E1422]/90 hover:bg-white text-[#E2E8F0] hover:text-[#050A15] shadow-[0_2px_12px_rgba(0,0,0,0.5)] hover:shadow-[0_0_24px_rgba(255,255,255,0.65)] transition-all duration-300 ease-out hover:scale-105 cursor-pointer"
-              aria-label="Message us on WhatsApp"
+              className="hidden lg:flex group relative items-center gap-2.5 px-5 py-2 rounded-full border border-white/25 hover:border-white bg-[#0E1422]/90 hover:bg-white text-[#E2E8F0] hover:text-[#050A15] shadow-[0_2px_12px_rgba(0,0,0,0.5)] hover:shadow-[0_0_24px_rgba(255,255,255,0.65)] transition-all duration-300 ease-out hover:scale-105 cursor-pointer"
             >
-              {/* Standard Green WhatsApp Logo Icon */}
-              <svg
-                className="w-4 h-4 fill-[#25D366] transition-transform duration-300 group-hover:scale-110 shrink-0"
-                viewBox="0 0 24 24"
-              >
+              <svg className="w-4 h-4 fill-[#25D366] transition-transform duration-300 group-hover:scale-110 shrink-0" viewBox="0 0 24 24">
                 <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0012.04 2zm.01 1.67c2.2 0 4.26.86 5.82 2.42a8.19 8.19 0 012.41 5.82c0 4.54-3.7 8.24-8.24 8.24-1.41 0-2.8-.36-4.02-1.05l-.29-.16-3.11.82.83-3.03-.19-.31a8.21 8.21 0 01-1.26-4.43c0-4.54 3.7-8.24 8.24-8.24zm4.52 11.64c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.07-.39-2.03-1.25-.75-.67-1.26-1.5-1.41-1.75-.14-.25-.02-.39.11-.51.11-.11.25-.29.38-.44.13-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.35-.77-1.85-.2-.49-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.13.17 1.77 2.7 4.29 3.79.6.26 1.07.41 1.44.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.11-.23-.17-.48-.29z" />
               </svg>
-
-              {/* Text in lowercase: message us */}
-              <span className="text-xs sm:text-[13px] font-sans font-semibold text-[#E2E8F0] group-hover:text-[#050A15] transition-colors lowercase tracking-normal">
+              <span className="text-[13px] font-sans font-semibold text-[#E2E8F0] group-hover:text-[#050A15] transition-colors lowercase tracking-normal">
                 message us
               </span>
             </a>
 
-            {/* Mobile Hamburger Toggle Button */}
+            {/* Mobile Hamburger Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden p-2 -mr-2 text-white hover:text-gray-300 transition-colors z-50 relative"
               aria-label="Toggle navigation menu"
-              className="lg:hidden text-[#C0C0C0] hover:text-white p-2 focus:outline-none"
             >
-              <div className="w-6 h-5 relative flex flex-col justify-between">
-                <span
-                  className={`w-full h-[1.5px] bg-[#C0C0C0] transition-all duration-300 ${
-                    mobileMenuOpen ? 'rotate-45 translate-y-2 bg-white' : ''
-                  }`}
-                />
-                <span
-                  className={`w-full h-[1.5px] bg-[#C0C0C0] transition-all duration-300 ${
-                    mobileMenuOpen ? 'opacity-0' : ''
-                  }`}
-                />
-                <span
-                  className={`w-full h-[1.5px] bg-[#C0C0C0] transition-all duration-300 ${
-                    mobileMenuOpen ? '-rotate-45 -translate-y-2 bg-white' : ''
-                  }`}
-                />
-              </div>
+              {mobileMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
           </div>
         </div>
+      </header>
 
-        {/* Mobile Navigation Drawer */}
-        <div
-          className={`lg:hidden fixed inset-x-0 top-[64px] max-h-[calc(100vh-64px)] overflow-y-auto bg-[#050A15]/98 backdrop-blur-2xl border-b border-white/15 transition-all duration-300 ease-in-out px-6 py-6 shadow-[0_20px_50px_rgba(0,0,0,0.8)] ${
-            mobileMenuOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-4'
-          }`}
-        >
-          <div className="flex flex-col space-y-3.5">
-            {NAV_ITEMS.map((item) => (
-              <div key={item.name} className="border-b border-white/10 pb-2">
-                <a
-                  href={item.href}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleLinkClick(item.href);
-                  }}
-                  className="flex items-center justify-between text-[#C0C0C0] hover:text-white text-xs uppercase tracking-[0.24em] font-sans py-1 cursor-pointer"
-                >
-                  <span>{item.name}</span>
-                  {item.hasDropdown && <ChevronDown className="w-3.5 h-3.5 text-[#7E889B]" />}
-                </a>
+      {/* ==============================================================================
+          FULL SCREEN MOBILE MENU (Fixes overcrowding by using a separate drawer)
+          ============================================================================== */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, x: '100%' }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: '100%' }}
+            transition={{ type: 'tween', duration: 0.3, ease: 'easeInOut' }}
+            className="fixed inset-0 z-[40] bg-[#050A15] lg:hidden flex flex-col pt-24 pb-8 px-6 overflow-y-auto"
+          >
+            {/* Nav Links Stack */}
+            <nav className="flex-1 flex flex-col space-y-2">
+              {NAV_ITEMS.map((item) => (
+                <div key={item.name} className="border-b border-white/10">
+                  {item.hasDropdown ? (
+                    // Toggleable Category for Mobile
+                    <button
+                      onClick={() => toggleMobileDropdown(item.name)}
+                      className="w-full flex items-center justify-between py-4 text-left font-sans text-sm tracking-[0.2em] uppercase text-white cursor-pointer"
+                    >
+                      <span>{item.name}</span>
+                      <ChevronDown
+                        className={`w-4 h-4 text-white/50 transition-transform duration-300 ${
+                          expandedMobileMenu === item.name ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </button>
+                  ) : (
+                    // Standard Link for Mobile
+                    <a
+                      href={item.href}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleLinkClick(item.href);
+                      }}
+                      className="block py-4 font-sans text-sm tracking-[0.2em] uppercase text-white cursor-pointer"
+                    >
+                      {item.name}
+                    </a>
+                  )}
 
-                {/* Sub-items for mobile */}
-                {item.hasDropdown && item.subItems && (
-                  <div className="pl-3 pt-1 space-y-1.5">
-                    {item.subItems.map((sub) => (
-                      <a
-                        key={sub.name}
-                        href={sub.href}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleLinkClick(sub.href);
-                        }}
-                        className="flex items-center justify-between text-[11px] text-[#8E96A8] hover:text-white py-1 cursor-pointer"
-                      >
-                        <span className="flex items-center gap-1.5">
-                          <span className="text-white/40">•</span>
-                          <span>{sub.name}</span>
-                        </span>
-                        {sub.tag && (
-                          <span className="text-[9px] font-mono text-[#7E889B] px-1.5 py-0.5 rounded bg-white/5">
-                            {sub.tag}
-                          </span>
-                        )}
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+                  {/* Mobile Sub-menu Accordion */}
+                  {item.hasDropdown && item.subItems && (
+                    <AnimatePresence>
+                      {expandedMobileMenu === item.name && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="pb-4 pl-4 flex flex-col space-y-3 border-l border-white/10 ml-2">
+                            {item.subItems.map((sub) => (
+                              <a
+                                key={sub.name}
+                                href={sub.href}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handleLinkClick(sub.href);
+                                }}
+                                className="text-xs text-[#9AA3B5] hover:text-white py-1 flex items-center justify-between transition-colors"
+                              >
+                                <span>{sub.name}</span>
+                                {sub.tag && (
+                                  <span className="text-[9px] font-mono text-white/40 bg-white/5 px-1.5 py-0.5 rounded">
+                                    {sub.tag}
+                                  </span>
+                                )}
+                              </a>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  )}
+                </div>
+              ))}
+            </nav>
 
-            {/* Mobile WhatsApp Action Button */}
-            <div className="pt-2">
+            {/* Bottom Actions Stack */}
+            <div className="mt-8 space-y-4 pb-12">
+              {/* WhatsApp Button Full Width */}
               <a
                 href="https://wa.me/971585783038?text=Hello%20Luxury%20Lounge%20Private%20Desk%2C%20I%20would%20like%20to%20inquire%20about%20bespoke%20services."
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setMobileMenuOpen(false)}
-                className="group flex items-center justify-center gap-2.5 w-full py-3 rounded-full border border-white/20 hover:border-white bg-[#0E1422] hover:bg-white text-[#E2E8F0] hover:text-[#050A15] text-xs font-sans font-semibold transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.5)] hover:shadow-[0_0_24px_rgba(255,255,255,0.65)]"
+                className="flex items-center justify-center gap-2.5 w-full py-4 rounded-full border border-white/20 bg-white text-[#050A15] font-sans font-semibold text-sm transition-all"
               >
-                <svg className="w-4 h-4 fill-[#25D366] transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 fill-[#25D366]" viewBox="0 0 24 24">
                   <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0012.04 2zm.01 1.67c2.2 0 4.26.86 5.82 2.42a8.19 8.19 0 012.41 5.82c0 4.54-3.7 8.24-8.24 8.24-1.41 0-2.8-.36-4.02-1.05l-.29-.16-3.11.82.83-3.03-.19-.31a8.21 8.21 0 01-1.26-4.43c0-4.54 3.7-8.24 8.24-8.24zm4.52 11.64c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.07-.39-2.03-1.25-.75-.67-1.26-1.5-1.41-1.75-.14-.25-.02-.39.11-.51.11-.11.25-.29.38-.44.13-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.35-.77-1.85-.2-.49-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.13.17 1.77 2.7 4.29 3.79.6.26 1.07.41 1.44.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.11-.23-.17-.48-.29z" />
                 </svg>
-                <span className="group-hover:text-[#050A15] transition-colors">message us</span>
+                <span>MESSAGE US ON WHATSAPP</span>
               </a>
-            </div>
 
-            {/* Mobile Language Switcher Section */}
-            <div className="pt-3 border-t border-white/10">
-              <LanguageSwitcher
-                variant="mobile-drawer"
-                onLanguageSelected={() => setMobileMenuOpen(false)}
-              />
+              {/* Language Settings inline for mobile */}
+              <div className="pt-4 flex justify-center">
+                <LanguageSwitcher variant="mobile-drawer" onLanguageSelected={() => setMobileMenuOpen(false)} />
+              </div>
             </div>
-          </div>
-        </div>
-      </header>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* SPOTLIGHT SEARCH MODAL (Triggered by Search Icon or Cmd+K) */}
       <AnimatePresence>
