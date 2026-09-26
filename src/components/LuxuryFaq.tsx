@@ -126,7 +126,7 @@ export const LuxuryFaq: React.FC = () => {
               <div className="inline-flex items-center gap-2 mb-3">
                 <span className="w-1.5 h-1.5 rounded-full bg-white/70" />
                 <span className="text-[10px] font-mono tracking-[0.28em] text-[#8E96A8] uppercase">
-                  Chapter VI • Protocols & Inquiries
+                  Chapter VII • Protocols & Inquiries
                 </span>
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif tracking-[0.04em] text-white uppercase font-light leading-[1.15]">

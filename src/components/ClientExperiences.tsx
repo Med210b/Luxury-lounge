@@ -191,7 +191,7 @@ export const ClientExperiences: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header with Mask Reveal */}
         <SectionHeader
-          chapter="Chapter III • Confidential Patronage"
+          chapter="Chapter V • Confidential Patronage"
           title="Client Testimonials & Dispatches"
           subtitle="“Verbatim reflections from sovereign families, maritime principals, and global patrons on our discreet execution and bespoke stewardship.”"
         >

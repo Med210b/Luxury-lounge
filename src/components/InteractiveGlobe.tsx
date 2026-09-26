@@ -844,7 +844,7 @@ export const InteractiveGlobe: React.FC = () => {
       <div className="max-w-6xl mx-auto px-6 relative z-10 flex flex-col items-center">
         {/* Section Heading */}
         <SectionHeader
-          chapter="Chapter II • Global Destinations"
+          chapter="Chapter IV • Global Destinations"
           title="Explore Global Possibilities"
           subtitle="“Interactive cartography of international private aviation corridors, diplomatic FBO aprons, and sovereign moorings.”"
           className="mb-8"

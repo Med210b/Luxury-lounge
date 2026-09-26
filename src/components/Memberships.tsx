@@ -342,7 +342,7 @@ export const Memberships: React.FC<MembershipsProps> = ({ onSelectTier }) => {
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         {/* Section Header */}
         <SectionHeader
-          chapter="Chapter IV • Private Patronage"
+          chapter="Chapter VI • Private Patronage"
           title="Membership"
           subtitle="“Three distinguished echelons of confidential stewardship, dedicated concierge directors, and round-the-clock priority execution.”"
         />

@@ -91,7 +91,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialTier }) =
       <div className="max-w-6xl mx-auto px-6 lg:px-12 relative z-10">
         {/* Section Header */}
         <SectionHeader
-          chapter="Chapter VII • Confidential Dispatch"
+          chapter="Chapter VIII • Confidential Dispatch"
           title="Private Client Desk"
           subtitle="“Direct communication with our senior managing partners and airside logistics desk for expedited priority review.”"
         />
