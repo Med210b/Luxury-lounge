@@ -83,13 +83,13 @@ export const Hero: React.FC = () => {
           muted
           playsInline
           preload="auto"
-          poster="/video/hero-poster.jpg"
+          poster={`${import.meta.env.BASE_URL}video/hero-poster.jpg`}
           disablePictureInPicture
           disableRemotePlayback
           className="w-full h-full object-cover object-center pointer-events-none"
         >
-          <source src="/video/hero-720p.mp4" type="video/mp4" />
-          <source src="/video/hero.mp4" type="video/mp4" />
+          <source src={`${import.meta.env.BASE_URL}video/hero-720p.mp4`} type="video/mp4" />
+          <source src={`${import.meta.env.BASE_URL}video/hero.mp4`} type="video/mp4" />
         </video>
 
         {/* Unified Cinematic Vignette for Contrast without Compositor Stutter */}
