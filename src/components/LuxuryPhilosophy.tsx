@@ -109,7 +109,7 @@ export const LuxuryPhilosophy: React.FC = () => {
       <div className="max-w-6xl mx-auto px-6 lg:px-12 relative z-10">
         {/* Unified Section Header with Mask Reveal */}
         <SectionHeader
-          chapter="Chapter I • Archival Manifesto"
+          chapter="Chapter II • Archival Manifesto"
           title="Luxury Philosophy"
           subtitle="“Verbatim doctrine from the pioneering figures who redefined contemporary elegance, effortless ease, and haute couture.”"
         />
