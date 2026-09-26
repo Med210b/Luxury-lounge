@@ -21,6 +21,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialTier }) =
 
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const sectionRef = useRef<HTMLElement>(null);
   const leftColRef = useRef<HTMLDivElement>(null);
@@ -70,13 +71,45 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialTier }) =
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setTimeout(() => {
+    setErrorMsg('');
+
+    // Prepare data payload for Web3Forms API
+    const payload = {
+      access_key: '47cc06dc-a863-4c8c-8223-cb9b6dacdcdd', // Your specific Web3Forms Key
+      subject: `New Inquiry from ${formData.firstName} ${formData.lastName}`,
+      Name: `${formData.firstName} ${formData.lastName}`,
+      'Contact Name (Alternative)': formData.contactName,
+      Email: formData.email,
+      Message: formData.message,
+    };
+
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      if (response.status === 200) {
+        setSubmitted(true);
+      } else {
+        console.error('Submission failed:', result);
+        setErrorMsg('There was an issue transmitting your dossier. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setErrorMsg('Network error. Please check your connection and try again.');
+    } finally {
       setIsSubmitting(false);
-      setSubmitted(true);
-    }, 1000);
+    }
   };
 
   return (
@@ -201,7 +234,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialTier }) =
                     Inquiry Transmitted
                   </h3>
                   <p className="text-xs text-[#CBD5E1] max-w-sm mx-auto font-light leading-relaxed">
-                    Thank you, {formData.firstName || 'Client'}. Your confidential message has been received by our private office. We will respond promptly.
+                    Thank you, {formData.firstName || 'Client'}. Your confidential message has been securely forwarded to our private office. We will respond promptly.
                   </p>
                   <div className="pt-3">
                     <button
@@ -290,6 +323,13 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialTier }) =
                       className="w-full rounded-xl border border-white/20 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder-white/35 focus:outline-none focus:border-white/60 focus:bg-white/[0.07] transition-all resize-none backdrop-blur-sm"
                     />
                   </div>
+                  
+                  {/* Error Message Display */}
+                  {errorMsg && (
+                    <div className="text-red-400 text-xs tracking-wide font-light text-center">
+                      {errorMsg}
+                    </div>
+                  )}
 
                   {/* Submit Button: Modern Structured Layout */}
                   <div className="pt-3 text-center">
@@ -297,7 +337,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialTier }) =
                       type="submit"
                       disabled={isSubmitting}
                       strength={0.32}
-                      className="inline-flex items-center justify-center gap-2.5 px-10 py-3.5 min-w-[230px] text-[11px] tracking-[0.22em] font-sans font-medium uppercase border border-white/50 bg-[rgba(255,255,255,0.04)] text-white hover:bg-white hover:text-[#050A15] hover:border-white hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-all duration-300 cursor-pointer"
+                      className="inline-flex items-center justify-center gap-2.5 px-10 py-3.5 min-w-[230px] text-[11px] tracking-[0.22em] font-sans font-medium uppercase border border-white/50 bg-[rgba(255,255,255,0.04)] text-white hover:bg-white hover:text-[#050A15] hover:border-white hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] active:scale-95 transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
                     >
                       <span>{isSubmitting ? 'Transmitting Dossier...' : 'Submit Written Inquiry'}</span>
                       <span>→</span>
