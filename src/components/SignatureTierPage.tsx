@@ -290,6 +290,8 @@ export const SignatureTierPage: React.FC<SignatureTierPageProps> = ({
   const [selectedService, setSelectedService] = useState<SignatureServiceItem | null>(null);
   const [applicationOpen, setApplicationOpen] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const [clientForm, setClientForm] = useState({
     fullName: '',
     phone: '',
@@ -334,11 +336,43 @@ export const SignatureTierPage: React.FC<SignatureTierPageProps> = ({
     document.body.removeChild(link);
   };
 
-  const handleSubmitApplication = (e: React.FormEvent) => {
+  const handleSubmitApplication = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormSubmitted(true);
-    if (onInitiateInquiry) {
-      onInitiateInquiry('SIGNATURE');
+    setIsSubmitting(true);
+    setErrorMsg('');
+
+    const payload = {
+      access_key: '47cc06dc-a863-4c8c-8223-cb9b6dacdcdd',
+      subject: `New SIGNATURE Tier Application from ${clientForm.fullName}`,
+      Name: clientForm.fullName,
+      Phone: clientForm.phone,
+      Email: clientForm.email,
+      'Preferred Method': clientForm.preferredMethod,
+      Notes: clientForm.notes || 'No additional notes provided.',
+    };
+
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.status === 200) {
+        setFormSubmitted(true);
+        if (onInitiateInquiry) {
+          onInitiateInquiry('SIGNATURE');
+        }
+      } else {
+        setErrorMsg('There was an issue transmitting your application. Please try again.');
+      }
+    } catch (error) {
+      setErrorMsg('Network error. Please check your connection and try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -957,12 +991,17 @@ export const SignatureTierPage: React.FC<SignatureTierPageProps> = ({
                     />
                   </div>
 
+                  {errorMsg && (
+                    <div className="text-red-400 text-xs text-center">{errorMsg}</div>
+                  )}
+
                   <div className="pt-2">
                     <button
                       type="submit"
-                      className="btn-silver w-full py-3 text-xs tracking-[0.2em] font-serif uppercase cursor-pointer"
+                      disabled={isSubmitting}
+                      className="btn-silver w-full py-3 text-xs tracking-[0.2em] font-serif uppercase cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
                     >
-                      Submit Confidential Application
+                      {isSubmitting ? 'Transmitting...' : 'Submit Confidential Application'}
                     </button>
                   </div>
 
