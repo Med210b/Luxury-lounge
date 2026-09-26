@@ -67,7 +67,7 @@ export const Footer: React.FC = () => {
                 rel="noopener noreferrer"
                 id="footer-facebook-link"
                 aria-label="Facebook Luxury Lounge Official"
-                className="w-10 h-10 rounded-full border border-white/20 bg-white/[0.03] hover:border-white hover:bg-white/10 hover:shadow-[0_0_16px_rgba(255,255,255,0.5)] flex items-center justify-center text-white transition-all duration-300 group cursor-pointer"
+                className="w-10 h-10 rounded-full border border-white/20 bg-white/[0.03] hover:border-[#1877F2] hover:bg-[#1877F2]/15 hover:shadow-[0_0_16px_rgba(24,119,242,0.4)] flex items-center justify-center text-[#1877F2] transition-all duration-300 group cursor-pointer"
               >
                 <Facebook className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
               </a>
@@ -79,7 +79,7 @@ export const Footer: React.FC = () => {
                 rel="noopener noreferrer"
                 id="footer-instagram-link"
                 aria-label="Instagram Luxury Lounge Official"
-                className="w-10 h-10 rounded-full border border-white/20 bg-white/[0.03] hover:border-white hover:bg-white/10 hover:shadow-[0_0_16px_rgba(255,255,255,0.5)] flex items-center justify-center text-white transition-all duration-300 group cursor-pointer"
+                className="w-10 h-10 rounded-full border border-white/20 bg-white/[0.03] hover:border-[#E1306C] hover:bg-[#E1306C]/15 hover:shadow-[0_0_16px_rgba(225,48,108,0.4)] flex items-center justify-center text-[#E1306C] transition-all duration-300 group cursor-pointer"
               >
                 <Instagram className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
               </a>
